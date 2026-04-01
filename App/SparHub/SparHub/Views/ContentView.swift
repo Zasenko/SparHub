@@ -16,13 +16,14 @@ enum Router {
 
 struct ContentView: View {
 
+    @StateObject var postsVM: PostsVM = PostsVM()
     @State private var router: Router = .home
         
     var body: some View {
         ZStack {
             switch router {
             case .home:
-                Color.blue
+                PostsView(postsVM: postsVM)
             case .search:
                 Color.yellow
             case .user:
