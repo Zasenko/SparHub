@@ -41,7 +41,6 @@ struct PostCell: View {
                     AppImages.iconUser
                         .resizable()
                         .frame(width: 20, height: 20)
-                        .foregroundStyle(post.isLiked ? .red : .secondary)
                     Text(post.user.name)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -49,7 +48,7 @@ struct PostCell: View {
                 AppImages.iconBookmark
                     .resizable()
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(post.isLiked ? .red : .secondary)
+                    .foregroundStyle(post.isMarked ? .yellow : .secondary)
                 AppImages.iconHeart
                     .resizable()
                     .frame(width: 20, height: 20)

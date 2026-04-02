@@ -13,8 +13,10 @@ final class PostsVM: ObservableObject {
     @Published var isLoading: Bool = true
     @Published var posts: [Post] = []
     @Published var categories: [PostCategory] = [.all]
-    @Published var selectedCetegory: PostCategory = .all
+    @Published var selectedCetegory: PostCategory? = .all
     @Published var showAddPost = false
+    @Published var hasMarkedPosts = false
+    @Published var markedSelected = false
     
     private var fetchedUsers: [Int] = []
     private var allPosts: [Post] = []
@@ -50,17 +52,49 @@ final class PostsVM: ObservableObject {
     }
     
     func sort(category: PostCategory) {
-        Task {
-            let new = allPosts.filter({ post in
-                category == .all || category == post.category
-            })
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                withAnimation {
-                    self.posts = new
-                    self.selectedCetegory = category
-                }
+        guard category != selectedCetegory else { return }
+        if category == .all {
+            withAnimation {
+                    self.posts = allPosts
             }
+        } else {
+            withAnimation {
+                self.posts = allPosts.filter( { $0.category == category})
+            }
+        }
+        withAnimation {
+            self.selectedCetegory = category
+            markedSelected = false
+        }
+    }
+    
+    func likePost(id: Int) {
+        if let index = allPosts.firstIndex(where: { $0.id == id }) {
+            allPosts[index].isLiked.toggle()
+        }
+    }
+    
+    func markPost(id: Int) {
+        if let index = allPosts.firstIndex(where: { $0.id == id }) {
+            allPosts[index].isMarked.toggle()
+        }
+        if allPosts.contains(where: { $0.isMarked }) {
+            hasMarkedPosts = true
+        } else {
+            hasMarkedPosts = false
+            if markedSelected {
+                markedSelected = false
+                selectedCetegory = .all
+                posts = allPosts
+            }
+        }
+    }
+    
+    func showMarkedPosts() {
+        withAnimation {
+            posts = allPosts.filter( { $0.isMarked })
+            selectedCetegory = nil
+            markedSelected = true
         }
     }
 }

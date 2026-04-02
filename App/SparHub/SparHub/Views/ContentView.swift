@@ -18,12 +18,13 @@ struct ContentView: View {
 
     @StateObject var postsVM: PostsVM = PostsVM()
     @State private var router: Router = .home
-        
+    @State private var tabBarHeight: CGFloat = .zero
+
     var body: some View {
         ZStack {
             switch router {
             case .home:
-                PostsView(postsVM: postsVM)
+                PostsView(postsVM: postsVM, tabBarHeight: $tabBarHeight)
             case .search:
                 Color.yellow
             case .user:
@@ -31,18 +32,31 @@ struct ContentView: View {
             case .add:
                 Color.orange
             }
-            HStack(spacing: 40) {
-                TabButton(router: $router, route: .home, img: AppImages.iconHome)
-                TabButton(router: $router, route: .search, img: AppImages.iconSearch)
-                TabButton(router: $router, route: .add, img: AppImages.iconPlus)
-                TabButton(router: $router, route: .user, img: AppImages.iconUser)
+            
+            ZStack(alignment: .bottom) {
+                LinearGradient(colors: [Color.clear, Color(uiColor: .systemBackground)], startPoint: .top, endPoint: .bottom)
+                            .ignoresSafeArea(.container, edges: .bottom)
+                            .frame(maxWidth: .infinity, maxHeight: tabBarHeight)
+                HStack(spacing: 40) {
+                    TabButton(router: $router, route: .home, img: AppImages.iconHome)
+                    TabButton(router: $router, route: .search, img: AppImages.iconSearch)
+                    TabButton(router: $router, route: .add, img: AppImages.iconPlus)
+                    TabButton(router: $router, route: .user, img: AppImages.iconUser)
+                }
+                .padding()
+                .padding(.horizontal)
+                .background() {
+                    GeometryReader { proxy in
+                        Color.red
+                            .onAppear {
+                                tabBarHeight = proxy.size.height
+                            }
+                    }
+                }
+                .clipShape(Capsule())
+                .padding(.horizontal)
+                .frame(maxHeight: .infinity, alignment: .bottom)
             }
-            .padding()
-            .padding(.horizontal)
-            .background(.red)
-            .clipShape(Capsule())
-            .padding(.horizontal)
-            .frame(maxHeight: .infinity, alignment: .bottom)
         }
         .animation(.smooth, value: router)
     }
